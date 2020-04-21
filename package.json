@@ -1,0 +1,23 @@
+{
+  "name": "pizza-rolls-discord-bot",
+  "version": "1.0.0",
+  "description": "An open source matchmaking DiscordBot.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/exdead01/PizzaRollsDiscordBot.git"
+  },
+  "author": "ExDead01",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/exdead01/PizzaRollsDiscordBot/issues"
+  },
+  "homepage": "https://github.com/exdead01/PizzaRollsDiscordBot#readme",
+  "dependencies": {
+    "discord.js": "^12.2.0",
+    "dotenv": "^8.2.0"
+  }
+}
