@@ -1,4 +1,4 @@
 # PizzaRollsDiscordBot
 An open source matchmaking DiscordBot.
 
-Using Zipf's I believe I will be able to make lasting matches by matching people with similar Zipf curves.
+Using Zipf's law, I believe I will be able to make lasting relationships by matching people with similar Zipf curves.
