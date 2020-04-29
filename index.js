@@ -1,11 +1,15 @@
 const Discord = require('discord.js');
+const fs = require('fs');
+var JSONStream = require( "JSONStream" );
 require('dotenv').config();
 const client = new Discord.Client();
-const jsonWriteTime = (2*60)*1000; //Minutes * seconds in a minute * milliseconds in a second
+const jsonWriteTime = (.5*60)*1000; //Minutes * seconds in a minute * milliseconds in a second
 
 const TOKEN = process.env.BOT_TOKEN;
 
-var User_History =[];
+var t=setInterval(saveJSON,jsonWriteTime);
+
+//var User_History =[];
 
 // Constructors
 
@@ -21,7 +25,6 @@ function Word(word)
 }
 
 
-
 // End of Constructors
 
 
@@ -29,6 +32,31 @@ client.login(TOKEN);
 
 client.on('ready', () =>{
     console.log('Logged in as ' + client.user.tag + '\n');
+    try
+    {
+        console.log('Reading users_words.json...');
+        User_History = JSON.parse(fs.readFileSync('users_words.json')); //if file exists
+        console.log('Read!');
+    }
+    catch(err)
+    {
+        console.error(err);
+        console.warn('File does not exist, creating...');
+        try
+        {
+            //trying to create file
+            fs.writeFileSync('users_words.json', JSON.stringify([]));
+            User_History = [];
+            console.log('Created!');
+        }
+        catch(err)
+        {
+            //if you cannot write it
+            console.error(err);
+            console.error('Could not load or create file!');
+            throw new Error('Exiting...');
+        }
+    }
 })
 
 client.on('message', msg=>{
@@ -37,7 +65,7 @@ client.on('message', msg=>{
         words = msg.content.split(" ");
         if(words[0] == "!matchme")
         {
-            msg.channel.send('Please Wait, @<' + msg.author.id + '>');
+            msg.channel.send('Please Wait, <@' + msg.author.id + '>');
             msg.channel.send(matchMe(msg.author.id));
         }
         // else if(words[0] == "!readme")
@@ -108,7 +136,7 @@ function isInArray(id)
 {
     if(typeof(id) != "string")
     {
-
+        console.warn("isInArray(id): id is not a string!")
         return [0,0];
     }
     else
@@ -126,9 +154,32 @@ function isInArray(id)
 
 function matchMe(id)
 {
-    if(isInArray(id)==0)
+    if(isInArray(id)[0]==0)
     {
-        return "No matches yet, " + id;
+        return "No matches yet, <@" + id + ">";
     }
-    return "Error: End of matchMe(id)"
+    return "Error: End of matchMe(" + id + ")";
 }
+
+function saveJSON()
+{
+    console.log('Start Writing JSON!');
+    try
+    {
+    //fs.writeFile('users_words.json', User_History);
+    fs.renameSync('users_words.json', 'users_words.json.bak');
+    var transformStream = JSONStream.stringify();
+    var outputStream = fs.createWriteStream("./users_words.json");
+    transformStream.pipe(outputStream);
+    User_History.forEach(transformStream.write);
+    transformStream.end();
+    }
+    catch
+    {
+        console.error(err);
+        console.error('Could not write backup!');
+        throw new Error('Exiting...');
+    }
+}
+
+
