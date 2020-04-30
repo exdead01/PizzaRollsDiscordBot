@@ -3,7 +3,7 @@ const fs = require('fs');
 var JSONStream = require( "JSONStream" );
 require('dotenv').config();
 const client = new Discord.Client();
-const jsonWriteTime = (.5*60)*1000; //Minutes * seconds in a minute * milliseconds in a second
+const jsonWriteTime = (2*60)*1000; //Minutes * seconds in a minute * milliseconds in a second
 
 const TOKEN = process.env.BOT_TOKEN;
 
@@ -76,7 +76,8 @@ client.on('message', msg=>{
                 if(!inArray[0])
                 {
                     var newUser = new User(msg.author.id);
-                    newUser.dict.push(words[i])
+                    var newWord = new Word(words[i]);
+                    newUser.dict.push(newWord)
                     User_History.push(newUser)
                 }
                 else
@@ -84,7 +85,7 @@ client.on('message', msg=>{
                     for(var j=0; j<User_History[inArray[1]].dict.length; j++)
                     {
 
-                        if(User_History[inArray[1]].dict[j] == words[i])
+                        if(User_History[inArray[1]].dict[j].word == words[i])
                         {
                             //if the word alreasy exists
                             User_History[inArray[1]].dict[j].times++;
@@ -93,7 +94,7 @@ client.on('message', msg=>{
                         else if(j==User_History[inArray[1]].dict.length-1)
                         {
                             //if the word doesnt exist and we're also at the end
-                            User_History[inArray[1]].dict.push(words[i]);
+                            User_History[inArray[1]].dict.push(new Word(words[i]));
                             break;
                         }
                     }
@@ -125,10 +126,22 @@ function isInArray(id)
 
 function matchMe(id)
 {
-    if(isInArray(id)[0]==0)
+    //Ok, we need to cycle through all the words in id's dictionary, and compare them to the dictionaries of all the users in the same guild.
+    //A score will be generated based on how many similar times (the difference of times between the same words) between each user.
+    //No sorting is required.
+
+    //average(id.dict.words[].times/user.dict.words[].times)<<<< order users by their absolute distance to 1
+
+    var inArray = isInArray(id);
+    if(inArray[0]==0)
     {
         return "No matches yet, <@" + id + ">";
     }
+    else
+    {
+
+    }
+     
     return "Error: End of matchMe(" + id + ")";
 }
 
@@ -151,6 +164,7 @@ function saveJSON()
         console.error('Could not write backup!');
         throw new Error('Exiting...');
     }
+    console.log('Finished!');
 }
 
 
