@@ -9,6 +9,8 @@ const TOKEN = process.env.BOT_TOKEN;
 
 var t=setInterval(saveJSON,jsonWriteTime);
 
+var SaveInProgress = 0;
+
 //var User_History =[];
 
 // Constructors
@@ -66,7 +68,7 @@ client.on('message', msg=>{
         if(words[0] == "!matchme")
         {
             msg.channel.send('Please Wait, <@' + msg.author.id + '>');
-            msg.channel.send(matchMe(msg.author.id));
+            msg.channel.send(matchMe(msg.author.id, msg.guild.id));
         }
         else
         {
@@ -124,11 +126,12 @@ function isInArray(id)
     }
 }
 
-function matchMe(id)
+function matchMe(id, guildid)
 {
     //Ok, we need to cycle through all the words in id's dictionary, and compare them to the dictionaries of all the users in the same guild.
     //A score will be generated based on how many similar times (the difference of times between the same words) between each user.
-    //No sorting is required.
+    //No sorting is required.- We must sort the scores at the end.
+    //Get scaled word.times with words[0].times/words[i].times
 
     //average(id.dict.words[].times/user.dict.words[].times)<<<< order users by their absolute distance to 1
 
@@ -139,32 +142,53 @@ function matchMe(id)
     }
     else
     {
+        var list = client.guilds.cache.get(guildid); 
 
+        var UserList = [];
+
+        list.members.cache.forEach(member =>
+            {
+                var otherInArray = isInArray(member.id);
+                if(otherInArray[0])
+                {
+                    var mostUsedWord = 0;
+                    for(var i=0; i<User_History[otherInArray[1]].length-1; i++)
+                    {
+
+                    }
+                }
+                console.log(member.id);
+            });
+
+        return "";
     }
-     
-    return "Error: End of matchMe(" + id + ")";
 }
 
 function saveJSON()
 {
-    console.log('Start Writing JSON!');
-    try
+    if(SaveInProgress == 0)
     {
-    //fs.writeFile('users_words.json', User_History);
-    fs.renameSync('users_words.json', 'users_words.json.bak');
-    var transformStream = JSONStream.stringify();
-    var outputStream = fs.createWriteStream("./users_words.json");
-    transformStream.pipe(outputStream);
-    User_History.forEach(transformStream.write);
-    transformStream.end();
+        SaveInProgress = 1;
+        console.log('Start Writing JSON!');
+        try
+        {
+        //fs.writeFile('users_words.json', User_History);
+        fs.renameSync('users_words.json', 'users_words.json.bak');
+        var transformStream = JSONStream.stringify();
+        var outputStream = fs.createWriteStream("./users_words.json");
+        transformStream.pipe(outputStream);
+        User_History.forEach(transformStream.write);
+        transformStream.end();
+        }
+        catch
+        {
+            console.error(err);
+            console.error('Could not write backup!');
+            throw new Error('Exiting...');
+        }
+        SaveInProgress = 0;
+        console.log('Finished!');
     }
-    catch
-    {
-        console.error(err);
-        console.error('Could not write backup!');
-        throw new Error('Exiting...');
-    }
-    console.log('Finished!');
 }
 
 
