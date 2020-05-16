@@ -195,12 +195,13 @@ function matchMe(id, guildid)
                     {
                         for(var j=0; j<User_History[otherInArray[1]].dict.length-1; j++) //all the words in other's dict
                         {
-                            if(User_History[inArray[1]].dict[i] === User_History[otherInArray[1]].dict[j])
+                            if(User_History[inArray[1]].dict[i].word === User_History[otherInArray[1]].dict[j].word)
                             {
                                 //compare scores
                                 var idTrueScore = (User_History[inArray[1]].dict[i].times/idMostUsedWord);
                                 var otherTrueScore = (User_History[otherInArray[1]].dict[j].times/otherMostUsedWord);
                                 var score = Math.abs((idTrueScore/otherTrueScore)-1);
+                                //console.log(score);
                                 if(score < matchedUser.score)
                                 {
                                     matchedUser.score = score;
