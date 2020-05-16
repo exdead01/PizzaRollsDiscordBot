@@ -198,7 +198,6 @@ function matchMe(id, guildid)
                             if(User_History[inArray[1]].dict[i] === User_History[otherInArray[1]].dict[j])
                             {
                                 //compare scores
-                                console.log(User_History[inArray[1]].dict[i])
                                 var idTrueScore = (User_History[inArray[1]].dict[i].times/idMostUsedWord);
                                 var otherTrueScore = (User_History[otherInArray[1]].dict[j].times/otherMostUsedWord);
                                 var score = Math.abs((idTrueScore/otherTrueScore)-1);
@@ -210,8 +209,6 @@ function matchMe(id, guildid)
                             }
                         }
                     }
-
-                    console.log(member.id);
                 }
             });
 
