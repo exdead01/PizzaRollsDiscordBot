@@ -75,6 +75,18 @@ client.on('message', msg=>{
             msg.channel.send('Please Wait, <@' + msg.author.id + '>');
             msg.channel.send(matchMe(msg.author.id, msg.guild.id));
         }
+        if(words[0] == "!patreon")
+        {
+            msg.channel.send('https://www.patreon.com/PizzaRollsDiscordBot');
+        }
+        if(words[0] == "!github")
+        {
+            msg.channel.send('https://github.com/exdead01/PizzaRollsDiscordBot');
+        }
+        if(words[0] == "!help")
+        {
+            msg.channel.send('!help: Displays this help text\n!patreon: Links you to my patreon\n!github: Links you to my source\n!matchme: Matches you with someone in this group');
+        }
         else
         {
             for(var i=0; i<words.length; i++)
