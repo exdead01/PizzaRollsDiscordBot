@@ -3,7 +3,7 @@ const fs = require('fs');
 var JSONStream = require( "JSONStream" );
 require('dotenv').config();
 const client = new Discord.Client();
-const jsonWriteTime = (2*60)*1000; //Minutes * seconds in a minute * milliseconds in a second
+const jsonWriteTime = (10*60)*1000; //Minutes * seconds in a minute * milliseconds in a second
 
 const TOKEN = process.env.BOT_TOKEN;
 
@@ -177,6 +177,8 @@ function matchMe(id, guildid)
         matchedUser.id = 0;
         matchedUser.score = 9999;
 
+        var scoreSum = 0;
+        var scoreTimes = 0;
         list.members.cache.forEach(member =>
             {
                 var otherInArray = isInArray(member.id);
@@ -190,7 +192,7 @@ function matchMe(id, guildid)
                             otherMostUsedWord=User_History[otherInArray[1]].dict[i].times;
                         }
                     }
-
+                    
                     for(var i=0; i<User_History[inArray[1]].dict.length-1; i++) //all the words in id's dict
                     {
                         for(var j=0; j<User_History[otherInArray[1]].dict.length-1; j++) //all the words in other's dict
@@ -200,14 +202,21 @@ function matchMe(id, guildid)
                                 //compare scores
                                 var idTrueScore = (User_History[inArray[1]].dict[i].times/idMostUsedWord);
                                 var otherTrueScore = (User_History[otherInArray[1]].dict[j].times/otherMostUsedWord);
-                                var score = Math.abs((idTrueScore/otherTrueScore)-1);
+                                var scoreSum =+ Math.abs((idTrueScore/otherTrueScore)-1);
+                                scoreTimes++;
                                 //console.log(score);
-                                if(score < matchedUser.score)
-                                {
-                                    matchedUser.score = score;
-                                    matchedUser.id = member.id;
-                                }
                             }
+                        }
+                    }
+                    if(scoreTimes>0)
+                    {
+                        var score = scoreSum/scoreTimes;
+                        scoreSum = 0;
+                        scoreTimes = 0; 
+                        if(score < matchedUser.score)
+                        {
+                            matchedUser.score = score;
+                            matchedUser.id = member.id;
                         }
                     }
                 }
