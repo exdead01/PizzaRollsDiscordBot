@@ -26,6 +26,11 @@ function Word(word)
     this.times = 1; // the times this word has been used
 }
 
+function Match(id)
+{
+    this.id = id;
+    this.score = 0;
+}
 
 // End of Constructors
 
@@ -75,29 +80,32 @@ client.on('message', msg=>{
             for(var i=0; i<words.length; i++)
             {
                 var inArray = isInArray(msg.author.id);
-                if(!inArray[0])
+                if(!msg.author.bot)
                 {
-                    var newUser = new User(msg.author.id);
-                    var newWord = new Word(words[i]);
-                    newUser.dict.push(newWord)
-                    User_History.push(newUser)
-                }
-                else
-                {
-                    for(var j=0; j<User_History[inArray[1]].dict.length; j++)
+                    if(!inArray[0])
                     {
+                        var newUser = new User(msg.author.id);
+                        var newWord = new Word(words[i]);
+                        newUser.dict.push(newWord)
+                        User_History.push(newUser)
+                    }
+                    else
+                    {
+                        for(var j=0; j<User_History[inArray[1]].dict.length; j++)
+                        {
 
-                        if(User_History[inArray[1]].dict[j].word == words[i])
-                        {
-                            //if the word alreasy exists
-                            User_History[inArray[1]].dict[j].times++;
-                            break;
-                        }
-                        else if(j==User_History[inArray[1]].dict.length-1)
-                        {
-                            //if the word doesnt exist and we're also at the end
-                            User_History[inArray[1]].dict.push(new Word(words[i]));
-                            break;
+                            if(User_History[inArray[1]].dict[j].word == words[i])
+                            {
+                                //if the word already exists
+                                User_History[inArray[1]].dict[j].times++;
+                                break;
+                            }
+                            else if(j==User_History[inArray[1]].dict.length-1)
+                            {
+                                //if the word doesn't exist and we're also at the end
+                                User_History[inArray[1]].dict.push(new Word(words[i]));
+                                break;
+                            }
                         }
                     }
                 }
@@ -131,7 +139,7 @@ function matchMe(id, guildid)
     //Ok, we need to cycle through all the words in id's dictionary, and compare them to the dictionaries of all the users in the same guild.
     //A score will be generated based on how many similar times (the difference of times between the same words) between each user.
     //No sorting is required.- We must sort the scores at the end.
-    //Get scaled word.times with words[0].times/words[i].times
+    //Get scaled word.times with highest words[].times/words[i].times
 
     //average(id.dict.words[].times/user.dict.words[].times)<<<< order users by their absolute distance to 1
 
@@ -142,25 +150,67 @@ function matchMe(id, guildid)
     }
     else
     {
+        var idMostUsedWord=0; //get id's most used more
+        for(var i=0; i<User_History[inArray[1]].dict.length-1; i++)
+        {
+            if(User_History[inArray[1]].dict[i].times>idMostUsedWord)
+            {
+                idMostUsedWord=User_History[inArray[1]].dict[i].times;
+            }
+        }
+
         var list = client.guilds.cache.get(guildid); 
 
-        var UserList = [];
+        var matchedUser = new Match(); //final match
+        matchedUser.id = 0;
+        matchedUser.score = 9999;
 
         list.members.cache.forEach(member =>
             {
                 var otherInArray = isInArray(member.id);
-                if(otherInArray[0])
+                if(otherInArray[0] && !(member.id==id))
                 {
-                    var mostUsedWord = 0;
-                    for(var i=0; i<User_History[otherInArray[1]].length-1; i++)
+                    var otherMostUsedWord = 0;
+                    for(var i=0; i<User_History[otherInArray[1]].dict.length-1; i++) //get most used word for this user
                     {
-
+                        if(User_History[otherInArray[1]].dict[i].times>otherMostUsedWord)
+                        {
+                            otherMostUsedWord=User_History[otherInArray[1]].dict[i].times;
+                        }
                     }
+
+                    for(var i=0; i<User_History[inArray[1]].dict.length-1; i++) //all the words in id's dict
+                    {
+                        for(var j=0; j<User_History[otherInArray[1]].dict.length-1; j++) //all the words in other's dict
+                        {
+                            if(User_History[inArray[1]].dict[i] === User_History[otherInArray[1]].dict[j])
+                            {
+                                //compare scores
+                                console.log(User_History[inArray[1]].dict[i])
+                                var idTrueScore = (User_History[inArray[1]].dict[i].times/idMostUsedWord);
+                                var otherTrueScore = (User_History[otherInArray[1]].dict[j].times/otherMostUsedWord);
+                                var score = Math.abs((idTrueScore/otherTrueScore)-1);
+                                if(score < matchedUser.score)
+                                {
+                                    matchedUser.score = score;
+                                    matchedUser.id = member.id;
+                                }
+                            }
+                        }
+                    }
+
+                    console.log(member.id);
                 }
-                console.log(member.id);
             });
 
-        return "";
+        if(matchedUser.id == 0)
+        {
+            return "No matches yet, <@" + id + ">";
+        }
+        else
+        {
+            return "Why don't you try <@" + matchedUser.id + ">?";
+        }
     }
 }
 
