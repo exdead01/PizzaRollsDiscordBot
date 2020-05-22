@@ -11,7 +11,21 @@ var t=setInterval(saveJSON,jsonWriteTime);
 
 var SaveInProgress = 0;
 
-//var User_History =[];
+const http = require('http');
+const express = require('express');
+const app = express();
+
+var User_History = [];
+
+app.get("/", (request, response) => {
+  console.log(Date.now() + " Ping Received");
+  response.sendStatus(200);
+});
+app.listen(process.env.PORT);
+setInterval(() => {
+  http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
+}, 280000);
+
 
 // Constructors
 
@@ -69,23 +83,28 @@ client.on('ready', () =>{
 client.on('message', msg=>{
     if(msg.author.tag != client.user.tag)
     {
-        words = msg.content.split(" ");
-        if(words[0] == "!matchme")
+      var PREFIX = ':'
+        var words = msg.content.split(" ");
+        if(words[0] == PREFIX + "matchme")
         {
             msg.channel.send('Please Wait, <@' + msg.author.id + '>');
             msg.channel.send(matchMe(msg.author.id, msg.guild.id));
         }
-        if(words[0] == "!patreon")
+        if(words[0] == PREFIX + "patreon")
         {
             msg.channel.send('https://www.patreon.com/PizzaRollsDiscordBot');
         }
-        if(words[0] == "!github")
+        if(words[0] == PREFIX + "github")
         {
             msg.channel.send('https://github.com/exdead01/PizzaRollsDiscordBot');
         }
-        if(words[0] == "!help")
+        if(words[0] == PREFIX + "help")
         {
-            msg.channel.send('!help: Displays this help text\n!patreon: Links you to my patreon\n!github: Links you to my source\n!matchme: Matches you with someone in this group');
+            msg.channel.send(PREFIX + 'help: Displays this help text\n' + PREFIX + 'patreon: Links you to my patreon\n'+PREFIX+'github: Links you to my source\n'+PREFIX+'matchme: Matches you with someone in this group' + PREFIX + 'invite: lets you add me to your server!');
+        }
+        if(words[0] == PREFIX + "invite")
+        {
+            msg.channel.send('https://discordapp.com/oauth2/authorize?client_id='+client.user.id+'&scope=bot');
         }
         else
         {
@@ -249,7 +268,7 @@ function saveJSON()
         User_History.forEach(transformStream.write);
         transformStream.end();
         }
-        catch
+        catch(err)
         {
             console.error(err);
             console.error('Could not write backup!');
